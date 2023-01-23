@@ -28,9 +28,6 @@ documentation = "https://github.com/niksirbi/rebootcamp"
 source_code = "https://github.com/niksirbi/rebootcamp"
 user_support = "https://github.com/niksirbi/rebootcamp/issues"
 
-[project.dependencies]
-
-
 [project.optional-dependencies]
 dev = [
 	"pytest",
