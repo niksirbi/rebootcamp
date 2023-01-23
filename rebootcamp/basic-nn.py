@@ -7,13 +7,12 @@ import numpy as np
 
 # from jax import grad, jit, nn
 
-# Specify paths
-repo_path = Path("/Users/nsirmpilatze/Code/NoBlackBoxes/LastBlackBox")
-box_path = repo_path / "boxes" / "learning"
-data_path = box_path / "supervised" / "_data" / "complex.csv"
+# Specify path to data
+data_dir = Path(__name__).parent / "data"
+data_path = data_dir / "xy_poly.csv"
 
 # Load data
-data = np.genfromtxt(data_path, delimiter=",")
+data = np.loadtxt(data_path, delimiter=",")
 x, y = data.T
 # add extra dimension
 x = np.expand_dims(x, 1)
