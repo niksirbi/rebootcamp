@@ -24,6 +24,9 @@ var/
 .installed.cfg
 *.egg
 
+# _tmp folder for holding large files
+_tmp/
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
