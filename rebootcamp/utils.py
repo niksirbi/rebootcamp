@@ -54,7 +54,7 @@ def plot_latents(
     fig, ax = plt.subplots(figsize=(10, 8), nrows=2, ncols=2)
     for i in range(4):
         row, col = i // 2, i % 2
-        ax[row, col].imshow(latents_copy[0, i, :, :].T, cmap="inferno")
+        ax[row, col].imshow(latents_copy[0, i, :, :], cmap="inferno")
         ax[row, col].axis("off")
     fig.suptitle(title)
     fig.tight_layout()

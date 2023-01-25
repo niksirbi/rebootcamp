@@ -1,7 +1,7 @@
+import time
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 import torch
 from diffusers import EulerDiscreteScheduler, StableDiffusionPipeline
 
@@ -9,6 +9,7 @@ from rebootcamp.utils import get_device, load_prompts, plot_latents
 
 # Specify paths for outputs
 data_dir = Path(__name__).parent / "data"
+data_dir = data_dir.resolve()
 tmp_dir = data_dir / "_tmp"
 
 # Get device (use GPU if available)
@@ -38,12 +39,13 @@ pipe = pipe.to(device)
 pipe.enable_attention_slicing()
 
 # Set prompts
-positive_prompt = "The quick brown fox jumps over the lazy dog."
+positive_prompt = "a shining city on a hill"
 negative_prompt = load_prompts(data_dir / "negative_prompts.txt")
+print(data_dir / "negative_prompts.txt")
 
 # Set height and width
-height = 960
-width = 720
+height = 720
+width = 960
 # Check inputs. Raise error if not correct
 pipe.check_inputs(positive_prompt, height, width, 1)
 
@@ -99,7 +101,6 @@ with torch.no_grad():
 # Visualize initial decoded latents
 fig, ax = plt.subplots(figsize=(8, 6), nrows=1, ncols=1)
 image_copy = image[0, :, :, :]
-image_copy = np.transpose(image_copy, (1, 0, 2))
 print(image_copy.shape)
 ax.imshow(image_copy)
 ax.axis("off")
@@ -110,3 +111,72 @@ plt.savefig(tmp_dir / "Initial Decoded Latents.png", dpi=128)
 # Prepare extra step kwargs
 eta = 0.0
 extra_step_kwargs = pipe.prepare_extra_step_kwargs(generator, eta)
+
+start_time = time.time()
+
+# Denoising loop (diffusion!)
+num_warmup_steps = len(timesteps) - num_inference_steps * pipe.scheduler.order
+with torch.no_grad():
+    for i, t in enumerate(timesteps):
+
+        # Expand the latents if we are doing classifier free guidance
+        latent_model_input = (
+            torch.cat([latents] * 2)
+            if do_classifier_free_guidance
+            else latents
+        )
+        latent_model_input = pipe.scheduler.scale_model_input(
+            latent_model_input, t
+        )
+
+        # predict the noise residual
+        # Inputs:
+        #  - latents *96x96), t (timestep), hidden_states ()
+        noise_pred = pipe.unet(
+            latent_model_input, t, encoder_hidden_states=text_embeddings
+        ).sample
+
+        # perform guidance
+        if do_classifier_free_guidance:
+
+            noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+            # UNet predicted noise in text and image embedding
+            noise_pred = noise_pred_uncond + guidance_scale * (
+                noise_pred_text - noise_pred_uncond
+            )
+
+            # compute the previous noisy sample x_t -> x_t-1
+            # Steps the latents...impements diffusion algorithm
+            # Moves latents through latent space towards the
+            # manifold of valid images, guided by the text embedding
+            latents = pipe.scheduler.step(
+                noise_pred, t, latents, **extra_step_kwargs
+            ).prev_sample
+
+        else:
+            noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+            noise_pred = noise_pred_uncond
+            # Just denoise initial random latents
+            latents = pipe.scheduler.step(
+                noise_pred, t, latents, **extra_step_kwargs
+            ).prev_sample
+
+        # Report progress
+        print(f"Iteration {i} of {len(timesteps) - num_warmup_steps}...")
+
+        # Decode and save image every 10 iterations
+        if (i + 1) % 10 == 0:
+            print(f"Iteration {i} of {len(timesteps) - num_warmup_steps}...")
+            # Decode current latents
+            image = pipe.decode_latents(latents)
+            # Save current image
+            image = pipe.numpy_to_pil(image)
+            image_save_path = tmp_dir / f"step_{str(i + 1).zfill(2)}.png"
+            image[0].save(image_save_path)
+
+# Report time
+end_time = time.time()
+print(f"Diffusion took: {end_time - start_time} seconds")
+
+# Report Done
+print("Done")
