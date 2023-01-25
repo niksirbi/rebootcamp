@@ -1,3 +1,4 @@
+import sys
 import time
 from pathlib import Path
 
@@ -7,10 +8,23 @@ from diffusers import EulerDiscreteScheduler, StableDiffusionPipeline
 
 from rebootcamp.utils import get_device, load_prompts, plot_latents
 
+positive_prompt = "a shining city on a hill"
+
+# Print arguments
+for i in range(1, len(sys.argv)):
+    print("argument:", i, "value:", sys.argv[i])
+
+# Get positive prompt from command line
+positive_prompt = sys.argv[1]
+print(f"prompt: {positive_prompt}")
+
 # Specify paths for outputs
 data_dir = Path(__name__).parent / "data"
 data_dir = data_dir.resolve()
 tmp_dir = data_dir / "_tmp"
+
+# Read negative prompts from file
+negative_prompt = load_prompts(data_dir / "negative_prompts.txt")
 
 # Get device (use GPU if available)
 device = get_device()
@@ -37,11 +51,6 @@ pipe = pipe.to(device)
 
 # Reduces memory usage
 pipe.enable_attention_slicing()
-
-# Set prompts
-positive_prompt = "a shining city on a hill"
-negative_prompt = load_prompts(data_dir / "negative_prompts.txt")
-print(data_dir / "negative_prompts.txt")
 
 # Set height and width
 height = 720
@@ -74,7 +83,7 @@ pipe.scheduler.set_timesteps(num_inference_steps, device=device)
 timesteps = pipe.scheduler.timesteps
 
 # Specify random generator seed
-seed = 42
+seed = 2021
 generator = torch.Generator(device).manual_seed(seed)
 
 # Prepare latent variables (random initialize)
