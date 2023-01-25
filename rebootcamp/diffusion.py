@@ -1,10 +1,11 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from diffusers import EulerDiscreteScheduler, StableDiffusionPipeline
 
-from rebootcamp.utils import get_device, load_prompts
+from rebootcamp.utils import get_device, load_prompts, plot_latents
 
 # Specify paths for outputs
 data_dir = Path(__name__).parent / "data"
@@ -89,14 +90,23 @@ latents = pipe.prepare_latents(
 )
 
 # Visualize initial latents
-latents_copy = latents
-if not device == torch.device("cpu"):
-    latents_copy = latents.cpu()
-fig, ax = plt.subplots(figsize=(10, 8), nrows=2, ncols=2)
-for i in range(4):
-    row, col = i // 2, i % 2
-    ax[row, col].imshow(latents_copy[0, i, :, :].T, cmap="inferno")
-    ax[row, col].axis("off")
-fig.suptitle("Initial Latents")
+plot_latents(latents, device, tmp_dir, title="Initial Latents")
+
+# Decode random latents
+with torch.no_grad():
+    image = pipe.decode_latents(latents)
+
+# Visualize initial decoded latents
+fig, ax = plt.subplots(figsize=(8, 6), nrows=1, ncols=1)
+image_copy = image[0, :, :, :]
+image_copy = np.transpose(image_copy, (1, 0, 2))
+print(image_copy.shape)
+ax.imshow(image_copy)
+ax.axis("off")
+fig.suptitle("Initial Decoded Latents")
 fig.tight_layout()
-plt.savefig(tmp_dir / "initial_latents.png", dpi=128)
+plt.savefig(tmp_dir / "Initial Decoded Latents.png", dpi=128)
+
+# Prepare extra step kwargs
+eta = 0.0
+extra_step_kwargs = pipe.prepare_extra_step_kwargs(generator, eta)
