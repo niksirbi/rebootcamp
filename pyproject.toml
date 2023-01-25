@@ -8,6 +8,8 @@ dynamic = ["version"]
 
 license = {text = "BSD-3-Clause"}
 
+dependencies = ["numpy", "matplotlib"]
+
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Programming Language :: Python",
