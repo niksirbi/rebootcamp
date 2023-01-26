@@ -13,8 +13,8 @@ MyPath = Union[str, Path]
 # Get the default device based on GPU availability
 default_device = get_device()
 
-DEFAULT_DIFF_CONFIG = {
-    "positive_prompt": "honey for all the gods",
+DEFAULT_DIFF_DICT = {
+    "positive_prompt": "hippocampus",
     "dtype": "torch.float16",
     "model_id": "stabilityai/stable-diffusion-2-1",
     "scheduler_id": "euler",
@@ -148,14 +148,5 @@ class DiffusionConfig(UserDict):
                     )
 
 
-# Create a config object with the default values
-my_diffusion_config = DiffusionConfig(DEFAULT_DIFF_CONFIG)
-
-# Get path to store the default config file
-default_config_path = (
-    Path(__name__).parent.parent / "data" / "default_diffusion_config.yaml"
-)
-default_config_path = default_config_path.resolve()
-
-# Save the default config to a yaml file
-my_diffusion_config.dump_to_file(default_config_path)
+# create the default config object
+DEFAULT_DIFF_CONFIG = DiffusionConfig(DEFAULT_DIFF_DICT)

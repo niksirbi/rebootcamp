@@ -4,35 +4,25 @@ from typing import Union
 
 import matplotlib.pyplot as plt
 import torch
-import yaml
 from diffusers import EulerDiscreteScheduler, StableDiffusionPipeline
 
 from rebootcamp.config import DiffusionConfig
 from rebootcamp.utils import load_prompts, plot_latents
 
-start_time = time.time()
-
 # Define type aliases
 MyPath = Union[str, Path]
 
-# Get path to the default config file
-default_config_path = (
-    Path(__name__).parent.parent / "data" / "default_diffusion_config.yaml"
-)
-default_config_path = default_config_path.resolve()
 
-
-def run_diffusion(config_path: MyPath = default_config_path):
+def run_diffusion(cfg_dict: DiffusionConfig):
     """
     Run the diffusion model given a config file.
     """
 
-    # Read arguments from config file
-    with open(default_config_path, "r") as cfg_file:
-        cfg_dict = yaml.safe_load(cfg_file)
-        cfg_dict = DiffusionConfig(cfg_dict)
+    start_time = time.time()
+    print("\nRunning stable diffusion:\n")
 
     # Print config
+    print("Config:")
     for key, value in cfg_dict.items():
         print(f"{key}: {value}")
 
@@ -47,7 +37,7 @@ def run_diffusion(config_path: MyPath = default_config_path):
     run_index = num_previous_runs + 1
     # Create output directory for this test
     run_dir = Path(output_dir) / f"{prefix}{str(run_index).zfill(3)}"
-    print(f"Creating output directory for this run: {run_dir}")
+    print(f"\nCreating output directory for this run: {run_dir}")
     if not run_dir.exists():
         run_dir.mkdir(parents=True)
 
@@ -215,7 +205,7 @@ def run_diffusion(config_path: MyPath = default_config_path):
 
     # Report time
     end_time = time.time()
-    print(f"Diffusion took: {end_time - start_time} seconds")
+    print(f"\nDiffusion took: {end_time - start_time} seconds")
 
     # Add elapsed time to config and save
     cfg_dict["run_duration_sec"] = end_time - start_time
@@ -223,6 +213,4 @@ def run_diffusion(config_path: MyPath = default_config_path):
 
     # Report Done
     print("Done")
-
-
-run_diffusion()
+    print("############################################")
