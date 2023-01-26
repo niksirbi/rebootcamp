@@ -7,7 +7,10 @@ model_ids = [
     "runwayml/stable-diffusion-v1-5",
 ]
 
+cfg = DiffusionConfig(DEFAULT_DIFF_CONFIG)
+cfg.update({"image_height": 960})
+cfg.update({"image_width": 720})
+
 for model_id in model_ids:
-    cfg = DiffusionConfig(DEFAULT_DIFF_CONFIG)
     cfg.update({"model_id": model_id})
     run_diffusion(cfg)

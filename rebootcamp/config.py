@@ -13,6 +13,13 @@ MyPath = Union[str, Path]
 # Get the default device based on GPU availability
 default_device = get_device()
 
+# Get path to the negative prompts file
+data_dir = Path(__name__).parent / "data"
+data_dir = data_dir.resolve()
+negative_prompts_path = data_dir / "negative_prompts.txt"
+print(negative_prompts_path)
+
+
 DEFAULT_DIFF_DICT = {
     "positive_prompt": "hippocampus",
     "dtype": "torch.float16",
@@ -22,7 +29,7 @@ DEFAULT_DIFF_DICT = {
     "seed": 42,
     "output_dir": "/mnt/Data/stable-diffusion",
     "run_prefix": "run_",
-    "negative_prompts_path": "/mnt/Data/stable-diffusion/negative_prompts.txt",
+    "negative_prompts_path": negative_prompts_path.as_posix(),
     "device": str(default_device),
     "attention_slicing": True,
     "classifier_free_guidance": True,
@@ -150,3 +157,7 @@ class DiffusionConfig(UserDict):
 
 # create the default config object
 DEFAULT_DIFF_CONFIG = DiffusionConfig(DEFAULT_DIFF_DICT)
+
+# Save the default config to a yaml file
+# config_path = data_dir / "default_diffusion_config.yaml"
+# DEFAULT_DIFF_CONFIG.dump_to_file(config_path)

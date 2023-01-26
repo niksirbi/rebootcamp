@@ -6,7 +6,7 @@ num_inference_steps: 50
 seed: 42
 output_dir: /mnt/Data/stable-diffusion
 run_prefix: run_
-negative_prompts_path: /mnt/Data/stable-diffusion/negative_prompts.txt
+negative_prompts_path: /home/nsirmpilatze/Code/niksirbi/rebootcamp/data/negative_prompts.txt
 device: cuda
 attention_slicing: true
 classifier_free_guidance: true
