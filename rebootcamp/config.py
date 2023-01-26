@@ -21,7 +21,7 @@ DEFAULT_DIFF_CONFIG = {
     "num_inference_steps": 50,
     "seed": 42,
     "output_dir": "/mnt/Data/stable-diffusion",
-    "test_prefix": "test_",
+    "run_prefix": "run_",
     "negative_prompts_path": "/mnt/Data/stable-diffusion/negative_prompts.txt",
     "device": str(default_device),
     "attention_slicing": True,

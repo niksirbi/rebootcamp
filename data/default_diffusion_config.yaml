@@ -5,7 +5,7 @@ scheduler_id: euler
 num_inference_steps: 50
 seed: 42
 output_dir: /mnt/Data/stable-diffusion
-test_prefix: test_
+run_prefix: run_
 negative_prompts_path: /mnt/Data/stable-diffusion/negative_prompts.txt
 device: cuda
 attention_slicing: true
@@ -14,3 +14,4 @@ image_height: 512
 image_width: 512
 batch_size: 1
 guidance_scale: 9.5
+plot_latents: true
