@@ -4,9 +4,21 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
+import yaml
 from diffusers import EulerDiscreteScheduler, StableDiffusionPipeline
 
 from rebootcamp.utils import get_device, load_prompts, plot_latents
+
+# Get path to the default config file
+default_config_path = (
+    Path(__name__).parent.parent / "data" / "default_diffusion_config.yaml"
+)
+default_config_path = default_config_path.resolve()
+
+# Read arguments from config file
+with open(default_config_path, "r") as cfg_file:
+    cfg_dict = yaml.safe_load(cfg_file)
+
 
 positive_prompt = "a shining city on a hill"
 
@@ -18,7 +30,7 @@ for i in range(1, len(sys.argv)):
 positive_prompt = sys.argv[1]
 print(f"prompt: {positive_prompt}")
 
-# Specify paths for outputs
+# Read
 data_dir = Path(__name__).parent / "data"
 data_dir = data_dir.resolve()
 tmp_dir = data_dir / "_tmp"

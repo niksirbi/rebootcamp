@@ -1,0 +1,16 @@
+positive_prompt: honey for all the gods
+dtype: torch.float16
+model_id: stabilityai/stable-diffusion-2-1
+scheduler_id: euler
+num_inference_steps: 50
+seed: 42
+output_dir: /mnt/Data/stable-diffusion
+test_prefix: test_
+negative_prompts_path: /mnt/Data/stable-diffusion/negative_prompts.txt
+device: cuda
+attention_slicing: true
+classifier_free_guidance: true
+image_height: 512
+image_width: 512
+batch_size: 1
+guidance_scale: 9.5

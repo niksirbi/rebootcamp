@@ -3,47 +3,84 @@ from collections import UserDict
 from pathlib import Path
 from typing import Any, Literal, Union
 
-import torch
 import yaml
+
+from rebootcamp.utils import get_device
 
 # Define type aliases
 MyPath = Union[str, Path]
 
+# Get the default device based on GPU availability
+default_device = get_device()
+
+DEFAULT_DIFF_CONFIG = {
+    "positive_prompt": "honey for all the gods",
+    "dtype": "torch.float16",
+    "model_id": "stabilityai/stable-diffusion-2-1",
+    "scheduler_id": "euler",
+    "num_inference_steps": 50,
+    "seed": 42,
+    "output_dir": "/mnt/Data/stable-diffusion",
+    "test_prefix": "test_",
+    "negative_prompts_path": "/mnt/Data/stable-diffusion/negative_prompts.txt",
+    "device": str(default_device),
+    "attention_slicing": True,
+    "classifier_free_guidance": True,
+    "image_height": 512,
+    "image_width": 512,
+    "batch_size": 1,
+    "guidance_scale": 9.5,
+    "plot_latents": True,
+}
+
 
 class DiffusionConfig(UserDict):
+    """
+    A class to handle the configuration of the diffusion model.
+    """
 
-    dtype: torch.dtype
-    model_id: str
-    scheduler_id: Literal["euler", "linear"]
-    output_dir: MyPath
-    test_prefix: str
-    negative_prompt_path: MyPath
+    input_path: dict
 
-    def __init__(self, cfg_path, input_dict):
+    def __init__(self, input_dict):
         super(DiffusionConfig, self).__init__(input_dict)
 
-        self.cfg_path = cfg_path
+    @classmethod
+    def from_file(cls, file_path: MyPath):
+        """
+        Load the config from a yaml file.
 
-    def dump_to_file(self):
+        Parameters
+        ----------
+        file_path : str or pathlib.Path
+            The path to the config file.
+
+        Returns
+        -------
+        DiffusionConfig
+            The configuration.
+        """
+        with open(file_path, "r") as cfg_file:
+            try:
+                cfg_dict = yaml.safe_load(cfg_file)
+            except Warning:
+                """
+                Unable to load the config file.
+                Make sure that the path leads to a valid yaml file.
+                Keeping the default config.
+                """
+        cls.convert_paths(cfg_dict, "str2path")
+
+        return cls(cfg_dict)
+
+    def dump_to_file(self, file_path: MyPath):
         """
         Dump the config to a yaml file.
         """
         cfg_to_save = copy.deepcopy(self.data)
         self.convert_paths(cfg_to_save, "path2str")
 
-        with open(self.file_path, "w") as cfg_file:
+        with open(file_path, "w") as cfg_file:
             yaml.dump(cfg_to_save, cfg_file, sort_keys=False)
-
-    def load_from_file(self):
-        """
-        Load the config from a yaml file.
-        """
-        with open(self.file_path, "r") as cfg_file:
-            cfg_dict = yaml.full_load(cfg_file)
-
-        self.convert_paths(cfg_dict, "str2path")
-
-        self.data = cfg_dict
 
     def update_an_entry(self, option_key: str, new_info: Any):
         """
@@ -69,7 +106,6 @@ class DiffusionConfig(UserDict):
 
         try:
             self[option_key] = new_info
-            self.dump_to_file()
         except Warning:
             print(
                 f"""
@@ -110,3 +146,16 @@ class DiffusionConfig(UserDict):
                     raise ValueError(
                         "direction must be either 'str2path' or 'path2str'."
                     )
+
+
+# Create a config object with the default values
+my_diffusion_config = DiffusionConfig(DEFAULT_DIFF_CONFIG)
+
+# Get path to store the default config file
+default_config_path = (
+    Path(__name__).parent.parent / "data" / "default_diffusion_config.yaml"
+)
+default_config_path = default_config_path.resolve()
+
+# Save the default config to a yaml file
+my_diffusion_config.dump_to_file(default_config_path)
