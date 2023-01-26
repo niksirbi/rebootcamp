@@ -35,11 +35,12 @@ dev = [
 	"coverage",
 	"tox",
 	"black",
-   	"isort",
-    	"mypy",
+  "isort",
+  "mypy",
 	"pre-commit",
 	"flake8",
  	"setuptools_scm",
+  "types-PyYAML",
 ]
 
 
