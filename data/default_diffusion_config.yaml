@@ -1,0 +1,17 @@
+positive_prompt: hippocampus
+dtype: torch.float16
+model_id: stabilityai/stable-diffusion-2-1
+scheduler_id: EulerDiscreteScheduler
+num_inference_steps: 20
+seed: 42
+output_dir: /mnt/Data/stable-diffusion
+run_prefix: run_
+negative_prompts_path: /home/nsirmpilatze/Code/niksirbi/rebootcamp/data/negative_prompts.txt
+device: cuda
+attention_slicing: false
+classifier_free_guidance: true
+image_height: 512
+image_width: 512
+batch_size: 1
+guidance_scale: 10.0
+plot_latents: false
