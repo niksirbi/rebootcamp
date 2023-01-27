@@ -161,3 +161,20 @@ DEFAULT_DIFF_CONFIG = DiffusionConfig(DEFAULT_DIFF_DICT)
 # Save the default config to a yaml file
 # config_path = data_dir / "default_diffusion_config.yaml"
 # DEFAULT_DIFF_CONFIG.dump_to_file(config_path)
+
+# Define a fast config for testing
+FAST_DIFF_CONFIG = copy.deepcopy(DEFAULT_DIFF_CONFIG)
+FAST_DIFF_CONFIG.update(
+    {
+        "num_inference_steps": 10,
+        "scheduler_id": "EulerDiscreteScheduler",
+        "seed": 42,
+        "batch_size": 1,
+        "guidance_scale": 10.0,
+        "attention_slicing": False,
+        "classifier_free_guidance": True,
+        "output_dir": "/mnt/Data/stable-diffusion/live",
+        "run_prefix": "image_",
+        "positive_prompt": "hippocampus",
+    }
+)

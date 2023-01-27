@@ -27,6 +27,7 @@ slicing_params = [True, False]
 guidance_scales = [5.0, 10.0, 15.0]
 possible_steps = [10, 20, 30, 40, 50]
 
+
 # Iterate both over the model ids and the schedulers
 for model_id, scheduler_id, slicing, scale, step in product(
     model_ids, scheduler_ids, slicing_params, guidance_scales, possible_steps
