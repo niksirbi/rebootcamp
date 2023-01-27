@@ -4,7 +4,7 @@ from typing import Union
 
 import matplotlib.pyplot as plt
 import torch
-from diffusers import EulerDiscreteScheduler, StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, schedulers
 
 from rebootcamp.config import DiffusionConfig
 from rebootcamp.utils import load_prompts, plot_latents
@@ -50,10 +50,8 @@ def run_diffusion(cfg_dict: DiffusionConfig):
     model_id = cfg_dict["model_id"]
 
     # Load the requested scheduler
-    if cfg_dict["scheduler_id"] == "euler":
-        scheduler = EulerDiscreteScheduler.from_pretrained(
-            model_id, subfolder="scheduler"
-        )
+    Scheduler = getattr(schedulers, cfg_dict["scheduler_id"])
+    scheduler = Scheduler.from_pretrained(model_id, subfolder="scheduler")
 
     # Choose the appropriate dtype
     if cfg_dict["dtype"] == "torch.float16":
@@ -69,11 +67,13 @@ def run_diffusion(cfg_dict: DiffusionConfig):
     pipe = StableDiffusionPipeline.from_pretrained(
         model_id, scheduler=scheduler, revision="fp16", torch_dtype=dtype
     )
+
     # Send model to device
     pipe = pipe.to(cfg_dict["device"])
 
     # Reduces memory usage
-    pipe.enable_attention_slicing()
+    if cfg_dict["attention_slicing"]:
+        pipe.enable_attention_slicing()
 
     # Set height and width
     height = cfg_dict["image_height"]
@@ -200,7 +200,7 @@ def run_diffusion(cfg_dict: DiffusionConfig):
                 image = pipe.decode_latents(latents)
                 # Save current image
                 image = pipe.numpy_to_pil(image)
-                image_save_path = run_dir / "result.png"
+                image_save_path = run_dir / "Image.png"
                 image[0].save(image_save_path)
 
     # Report time
